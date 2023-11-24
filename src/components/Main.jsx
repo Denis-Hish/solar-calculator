@@ -3,21 +3,17 @@ import Settings from './Settings';
 import DeviceList from './DeviceList';
 
 const Main = () => {
-   const [totalDevicePower, setTotalDevicePower] = useState({});
-   const voltageValue = !totalDevicePower.is12V ? 12 : 24;
+  const [totalDevicePower, setTotalDevicePower] = useState({});
 
-   return (
-      <main>
-         <Settings
-            updateTotalDevicePower={setTotalDevicePower}
-            totalDevicePower={totalDevicePower}
-         />
-         <DeviceList
-            updateTotalDevicePower={setTotalDevicePower}
-            voltageValue={voltageValue}
-         />
-      </main>
-   );
+  return (
+    <main>
+      <Settings
+        updateTotalDevicePower={setTotalDevicePower}
+        totalDevicePower={totalDevicePower}
+      />
+      <DeviceList updateTotalDevicePower={setTotalDevicePower} />
+    </main>
+  );
 };
 
 export default Main;
