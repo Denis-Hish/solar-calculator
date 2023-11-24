@@ -1,96 +1,195 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 import { setLocalStorage, getLocalStorage } from '../localStorage';
 import { PlusLg, DashLg } from 'react-bootstrap-icons';
+import { Button, ButtonGroup, TextField, InputAdornment } from '@mui/material';
 
-const DeviceList = () => {
-  const [lines, setLines] = useState([{ id: 1 }]);
+const DeviceList = ({ updateTotalDevicePower, voltageValue }) => {
+   console.log(voltageValue);
 
-  const addLine = () => {
-    const newId = lines.length + 1;
-    setLines([...lines, { id: newId }]);
-  };
+   const [totalPower, setTotalPower] = useState(0);
 
-  const removeLine = (id) => {
-    const updatedLines = lines.filter((line) => line.id !== id);
-    setLines(updatedLines);
-  };
+   const [lines, setLines] = useState(() => {
+      const savedLines = getLocalStorage('lines', [{ id: 1 }]);
+      return savedLines;
+   });
 
-  const calculateTotalPower = (hours, power) => {
-    return hours * power;
-  };
+   const addLine = () => {
+      const newId = uuidv4();
+      setLines([...lines, { id: newId }]);
+   };
 
-  const updateTotalPower = (id, workingHours, power) => {
-    const updatedLines = lines.map((line) => {
-      if (line.id === id) {
-        const totalPower = workingHours * power;
-        return { ...line, workingHours, power, totalPower };
-      }
-      return line;
-    });
-    setLines(updatedLines);
-  };
+   const removeLine = id => {
+      const updatedLines = lines.filter(line => line.id !== id);
+      setLines(updatedLines);
+   };
 
-  return (
-    <div className='device-list'>
-      <div className='container'>
-        <div className='title-table'>
-          <h6>Список устройств</h6>
-          <button type='button' className='btn btn-outline-primary'>
-            Очистить
-          </button>
-        </div>
-        {lines.map((line) => (
-          <div className='input-group devices-input-group' key={line.id}>
-            <span className='index-number input-group-text'>{line.id}</span>
-            <input
-              type='text'
-              placeholder='Название устройства'
-              className='device form-control'
-            />
-            <input
-              type='number'
-              placeholder='Время работы (часов)'
-              className='device form-control'
-              onChange={(e) =>
-                updateTotalPower(line.id, e.target.value, line.power)
-              }
-            />
-            <input
-              type='number'
-              placeholder='Мощность устройства (Вт/ч)'
-              className='device form-control'
-              onChange={(e) =>
-                updateTotalPower(line.id, line.workingHours, e.target.value)
-              }
-            />
-            <input
-              type='text'
-              className='device form-control'
-              disabled
-              readOnly
-              value={`${
-                line.totalPower || 'Общая мощность устройства (Вт/ч)'
-              } Вт/ч`}
-            />
-            <button
-              type='button'
-              className='btn btn-outline-primary'
-              onClick={() => addLine()}
-            >
-              <PlusLg />
-            </button>
-            <button
-              type='button'
-              className='btn btn-outline-danger'
-              onClick={() => removeLine(line.id)}
-            >
-              <DashLg />
-            </button>
-          </div>
-        ))}
+   const updateTotalPower = (id, workingHours, power) => {
+      const updatedLines = lines.map(line => {
+         if (line.id === id) {
+            const totalPower = workingHours * deviceData[id]?.devicePower || 0;
+            return { ...line, workingHours, power, totalPower };
+         }
+         return line;
+      });
+      setLines(updatedLines);
+   };
+
+   useEffect(() => {
+      setLocalStorage('lines', lines);
+   }, [lines]);
+
+   // State для сохранения значений полей ввода
+   const [deviceData, setDeviceData] = useState(() => {
+      const savedDeviceData = getLocalStorage('deviceData', {});
+      return savedDeviceData;
+   });
+
+   const [totalDevicePower, setTotalDevicePower] = useState({});
+
+   // Обработчики изменения значений полей ввода для конкретной строки
+   const handleDeviceChange = (id, field, value) => {
+      setDeviceData(prevData => ({
+         ...prevData,
+         [id]: {
+            ...prevData[id],
+            [field]: value,
+         },
+      }));
+   };
+
+   // Использование useEffect для сохранения и восстановления значений полей ввода
+   useEffect(() => {
+      setLocalStorage('deviceData', deviceData);
+   }, [deviceData]);
+
+   useEffect(() => {
+      const updatedTotalDevicePower = lines.reduce((total, line) => {
+         const lineTotalPower =
+            deviceData[line.id]?.workingHours *
+               deviceData[line.id]?.devicePower || 0;
+         return { ...total, [line.id]: lineTotalPower };
+      }, {});
+      setTotalDevicePower(updatedTotalDevicePower);
+   }, [lines, deviceData]);
+
+   useEffect(() => {
+      updateTotalDevicePower(totalDevicePower);
+   }, [totalDevicePower, updateTotalDevicePower]);
+
+   return (
+      <div className="device-list">
+         <div className="container">
+            <div className="title-table">
+               <h6>Список устройств</h6>
+               <Button variant="outlined">Очистить</Button>
+            </div>
+            {lines.map((line, index) => (
+               <div className="input-group devices-input-group" key={line.id}>
+                  <span className="index-number input-group-text">
+                     {index + 1}
+                  </span>
+                  <TextField
+                     type="text"
+                     label="Название устройства"
+                     className="device form-control"
+                     value={deviceData[line.id]?.deviceName || ''}
+                     onChange={e =>
+                        handleDeviceChange(
+                           line.id,
+                           'deviceName',
+                           e.target.value
+                        )
+                     }
+                  />
+                  <TextField
+                     type="number"
+                     label="Время работы"
+                     className="device form-control"
+                     value={deviceData[line.id]?.workingHours || ''}
+                     onChange={e =>
+                        handleDeviceChange(
+                           line.id,
+                           'workingHours',
+                           e.target.value
+                        )
+                     }
+                     InputProps={{
+                        endAdornment: (
+                           <InputAdornment position="end">часов</InputAdornment>
+                        ),
+                     }}
+                  />
+                  <TextField
+                     type="number"
+                     label="Мощность устройства"
+                     className="device form-control"
+                     value={deviceData[line.id]?.devicePower || ''}
+                     onChange={e =>
+                        handleDeviceChange(
+                           line.id,
+                           'devicePower',
+                           e.target.value
+                        )
+                     }
+                     InputProps={{
+                        endAdornment: (
+                           <InputAdornment position="end">Вт/ч</InputAdornment>
+                        ),
+                     }}
+                  />
+                  <TextField
+                     type="number"
+                     label="Потребление"
+                     className="device form-control"
+                     disabled
+                     readOnly
+                     value={totalDevicePower[line.id] || ''}
+                     InputProps={{
+                        endAdornment: (
+                           <InputAdornment position="end">Вт/ч</InputAdornment>
+                        ),
+                     }}
+                  />
+                  <TextField
+                     type="number"
+                     label="Потребление"
+                     className="device form-control"
+                     disabled
+                     readOnly
+                     value={
+                        totalDevicePower[line.id]
+                           ? (totalDevicePower[line.id] / voltageValue).toFixed(
+                                2
+                             )
+                           : ''
+                     }
+                     InputProps={{
+                        endAdornment: (
+                           <InputAdornment position="end">Ам/ч</InputAdornment>
+                        ),
+                     }}
+                  />
+                  <Button
+                     className="btn-line add"
+                     variant="outlined"
+                     onClick={() => addLine()}
+                  >
+                     <PlusLg />
+                  </Button>
+                  <Button
+                     className="btn-line remove"
+                     variant="outlined"
+                     color="error"
+                     onClick={() => removeLine(line.id)}
+                  >
+                     <DashLg />
+                  </Button>
+               </div>
+            ))}
+         </div>
       </div>
-    </div>
-  );
+   );
 };
 
 export default DeviceList;
