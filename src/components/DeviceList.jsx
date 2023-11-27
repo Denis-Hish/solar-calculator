@@ -1,14 +1,27 @@
 import React, { useState, useEffect } from 'react';
-import { v4 as uuidv4 } from 'uuid'; // уникальные идентификаторы
+import { v4 as uuidv4 } from 'uuid';
 import { setLocalStorage, getLocalStorage } from '../localStorage';
 import { PlusLg, DashLg } from 'react-bootstrap-icons';
 import { Button, TextField, InputAdornment } from '@mui/material';
 
-const DeviceList = ({ updateTotalDevicePower, voltageValue }) => {
+const DeviceList = ({
+  updateTotalDevicePower,
+  onSelectVoltChange,
+  selectVolt,
+}) => {
   const [lines, setLines] = useState(() => {
     const savedLines = getLocalStorage('lines', [{ id: 1 }]);
     return savedLines;
   });
+
+  const [deviceData, setDeviceData] = useState(() => {
+    const savedDeviceData = getLocalStorage('deviceData', {});
+    return savedDeviceData;
+  });
+
+  const safeDivision = (numerator, denominator) => {
+    return denominator !== 0 ? numerator / denominator : 0;
+  };
 
   const addLine = () => {
     const newId = uuidv4();
@@ -24,15 +37,16 @@ const DeviceList = ({ updateTotalDevicePower, voltageValue }) => {
     setLocalStorage('lines', lines);
   }, [lines]);
 
-  // State для сохранения значений полей ввода
-  const [deviceData, setDeviceData] = useState(() => {
+  useEffect(() => {
     const savedDeviceData = getLocalStorage('deviceData', {});
-    return savedDeviceData;
-  });
+    setDeviceData(savedDeviceData);
+
+    const savedSelectVolt = parseFloat(getLocalStorage('selectVolt', ''));
+    onSelectVoltChange(savedSelectVolt);
+  }, [onSelectVoltChange]);
 
   const [totalDevicePower, setTotalDevicePower] = useState({});
 
-  // Обработчики изменения значений полей ввода для конкретной строки
   const handleDeviceChange = (id, field, value) => {
     setDeviceData((prevData) => ({
       ...prevData,
@@ -43,20 +57,24 @@ const DeviceList = ({ updateTotalDevicePower, voltageValue }) => {
     }));
   };
 
-  // Использование useEffect для сохранения и восстановления значений полей ввода
   useEffect(() => {
     setLocalStorage('deviceData', deviceData);
   }, [deviceData]);
 
   useEffect(() => {
-    const updatedTotalDevicePower = lines.reduce((total, line) => {
-      const lineTotalPower =
-        deviceData[line.id]?.workingHours * deviceData[line.id]?.devicePower ||
-        0;
-      return { ...total, [line.id]: lineTotalPower };
-    }, {});
-    setTotalDevicePower(updatedTotalDevicePower);
-  }, [lines, deviceData]);
+    if (selectVolt !== null) {
+      const updatedTotalDevicePower = lines.reduce((total, line) => {
+        const lineTotalPower =
+          deviceData[line.id]?.workingHours *
+            deviceData[line.id]?.devicePower || 0;
+        return { ...total, [line.id]: lineTotalPower };
+      }, {});
+      setTotalDevicePower(updatedTotalDevicePower);
+      if (onSelectVoltChange) {
+        onSelectVoltChange(selectVolt);
+      }
+    }
+  }, [lines, deviceData, selectVolt, onSelectVoltChange]);
 
   useEffect(() => {
     updateTotalDevicePower(totalDevicePower);
@@ -108,7 +126,7 @@ const DeviceList = ({ updateTotalDevicePower, voltageValue }) => {
               }
               InputProps={{
                 endAdornment: (
-                  <InputAdornment position='end'>Вт/ч</InputAdornment>
+                  <InputAdornment position='end'>Вт</InputAdornment>
                 ),
               }}
             />
@@ -119,7 +137,15 @@ const DeviceList = ({ updateTotalDevicePower, voltageValue }) => {
               className='device form-control'
               disabled
               readOnly
-              value={totalDevicePower[line.id] || ''}
+              value={
+                totalDevicePower[line.id] !== 0
+                  ? totalDevicePower[line.id] !== undefined
+                    ? totalDevicePower[line.id] % 1 === 0
+                      ? totalDevicePower[line.id].toFixed(0)
+                      : totalDevicePower[line.id].toFixed(2)
+                    : ''
+                  : ''
+              }
               InputProps={{
                 endAdornment: (
                   <InputAdornment position='end'>Вт/ч</InputAdornment>
@@ -134,8 +160,12 @@ const DeviceList = ({ updateTotalDevicePower, voltageValue }) => {
               disabled
               readOnly
               value={
-                totalDevicePower[line.id]
-                  ? (totalDevicePower[line.id] / voltageValue).toFixed(2)
+                selectVolt !== null
+                  ? totalDevicePower[line.id] !== 0
+                    ? (totalDevicePower[line.id] / selectVolt) % 1 === 0
+                      ? (totalDevicePower[line.id] / selectVolt).toFixed(0)
+                      : (totalDevicePower[line.id] / selectVolt).toFixed(2)
+                    : ''
                   : ''
               }
               InputProps={{
