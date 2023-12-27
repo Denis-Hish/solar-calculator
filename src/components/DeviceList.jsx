@@ -19,9 +19,9 @@ const DeviceList = ({
     return savedDeviceData;
   });
 
-  const safeDivision = (numerator, denominator) => {
-    return denominator !== 0 ? numerator / denominator : 0;
-  };
+  // const safeDivision = (numerator, denominator) => {
+  //   return denominator !== 0 ? numerator / denominator : 0;
+  // };
 
   const addLine = () => {
     const newId = uuidv4();
@@ -94,7 +94,7 @@ const DeviceList = ({
               id='name_device'
               type='text'
               label='Название устройства'
-              className='device form-control'
+              className='device custom-input-inset form-control'
               value={deviceData[line.id]?.deviceName || ''}
               onChange={(e) =>
                 handleDeviceChange(line.id, 'deviceName', e.target.value)
@@ -104,7 +104,7 @@ const DeviceList = ({
               id='working_hours'
               type='number'
               label='Время работы'
-              className='device form-control'
+              className='device custom-input-inset form-control'
               value={deviceData[line.id]?.workingHours || ''}
               onChange={(e) =>
                 handleDeviceChange(line.id, 'workingHours', e.target.value)
@@ -119,7 +119,7 @@ const DeviceList = ({
               id='power_device'
               type='number'
               label='Мощность устройства'
-              className='device form-control'
+              className='device custom-input-inset form-control'
               value={deviceData[line.id]?.devicePower || ''}
               onChange={(e) =>
                 handleDeviceChange(line.id, 'devicePower', e.target.value)
@@ -134,7 +134,7 @@ const DeviceList = ({
               id='consumption consumption-wt'
               type='number'
               label='Потребление'
-              className='device form-control'
+              className='device custom-input form-control'
               disabled
               readOnly
               value={
@@ -156,18 +156,10 @@ const DeviceList = ({
               id='consumption consumption-am'
               type='number'
               label='Потребление'
-              className='device form-control'
+              className='device custom-input form-control'
               disabled
               readOnly
-              value={
-                selectVolt !== null
-                  ? totalDevicePower[line.id] !== 0
-                    ? (totalDevicePower[line.id] / selectVolt) % 1 === 0
-                      ? (totalDevicePower[line.id] / selectVolt).toFixed(0)
-                      : (totalDevicePower[line.id] / selectVolt).toFixed(2)
-                    : ''
-                  : ''
-              }
+              value={0}
               InputProps={{
                 endAdornment: (
                   <InputAdornment position='end'>Ам/ч</InputAdornment>

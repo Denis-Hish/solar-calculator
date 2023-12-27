@@ -32,35 +32,25 @@ function Settings({
     setError(newValue > 24);
   };
 
-  const calculateTotalDevicePowerWt = () => {
-    if (!totalDevicePower) return 0;
-    return Object.values(totalDevicePower).reduce(
-      (acc, value) => acc + value,
-      0
-    );
-  };
+  // const calculateTotalDevicePowerWt = () => {
+  //   if (!totalDevicePower) return 0;
+  //   return Object.values(totalDevicePower).reduce(
+  //     (acc, value) => acc + value,
+  //     0
+  //   );
+  // };
 
   useEffect(() => {
     setLocalStorage('selectVolt', selectVolt);
-  }, [selectVolt]);
-
-  useEffect(() => {
     const savedSelectVolt = getLocalStorage('selectVolt', '');
     setSelectVolt(savedSelectVolt !== '' ? parseFloat(savedSelectVolt) : null);
-  }, []);
 
-  useEffect(() => {
     setLocalStorage('daylightHours', daylightHours);
-  }, [daylightHours]);
-
-  useEffect(() => {
     const savedDaylightHours = getLocalStorage('daylightHours', '');
     setDaylightHours(savedDaylightHours);
-  }, []);
 
-  useEffect(() => {
     updateTotalDevicePower(totalDevicePower);
-  }, [totalDevicePower, updateTotalDevicePower]);
+  }, [selectVolt, daylightHours, totalDevicePower, updateTotalDevicePower]);
 
   return (
     <div className='settings'>
@@ -68,7 +58,7 @@ function Settings({
         <div className='row'>
           <div className='col'>
             <TextField
-              className='select-volt'
+              className='select-volt custom-input-inset'
               label='Напряжение'
               variant='outlined'
               type='number'
@@ -83,7 +73,7 @@ function Settings({
             />
 
             <TextField
-              className='length-daylight'
+              className='length-daylight custom-input-inset'
               label='Световой день'
               variant='outlined'
               type='number'
@@ -104,7 +94,7 @@ function Settings({
           <div className='col'>
             <h6>У тебя есть:</h6>
             <p>
-              Потребление <span>{calculateTotalDevicePowerWt()}</span> Вт/ч
+              Потребление <span>000</span> Вт/ч
             </p>
             <p>
               Потребление <span>000</span> Ам/ч
