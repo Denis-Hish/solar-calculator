@@ -1,0 +1,17 @@
+{
+  "ua": {
+    "translation": {
+      "Welcome to React": "Welcome to React and react-i18next"
+    }
+  },
+  "pl": {
+    "translation": {
+      "Welcome to React": "Bienvenue à React et react-i18next"
+    }
+  },
+  "en": {
+    "translation": {
+      "Welcome to React": "Bienvenue à React et react-i18next"
+    }
+  }
+}

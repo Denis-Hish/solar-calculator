@@ -44,70 +44,6 @@ header .container .language-selector {
   position: relative;
   display: inline-block;
 }
-header .container .language-selector .selected-language img,
-header .container .language-selector .language-options li img {
-  width: 36px;
-}
-header .container .language-selector .selected-language {
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-  padding: 5px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  background-color: #fff;
-  position: relative;
-  z-index: 101;
-}
-header .container .language-selector .selected-language img {
-  border: 1px solid #ccc;
-}
-header .container .language-selector .selected-language .arrow {
-  border: solid #000;
-  border-width: 0 2px 2px 0;
-  display: inline-block;
-  padding: 3px;
-  margin-left: 5px;
-  transition: all 0.3s ease-in-out;
-  transform: rotate(45deg);
-}
-header .container .language-selector ul.language-options {
-  padding: 10px 0 0;
-  margin: -10px 0 0;
-  border: 1px solid #ccc;
-  background-color: #fff;
-  border-radius: 5px;
-  list-style: none;
-  z-index: 100;
-  position: absolute;
-  top: 100%;
-  left: 0;
-  width: 60px;
-  overflow: hidden;
-  transition: all 0.3s ease-in-out;
-  max-height: 0;
-}
-header .container .language-selector ul.language-options li {
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-}
-header .container .language-selector ul.language-options li img {
-  margin: 5px;
-  border: 1px solid #ccc;
-}
-header .container .language-selector ul.language-options li:hover {
-  background-color: #e0e0e0;
-}
-header .container .language-selector.opened .language-options {
-  max-height: 110px;
-}
-header .container .language-selector.opened .arrow {
-  transform: rotate(225deg);
-}
-header .container .language-selector:not(.opened) .language-options {
-  padding: 0;
-}
 
 main {
   /* Error message at the entry field */
@@ -115,13 +51,12 @@ main {
 main .container {
   padding: 30px;
   border-radius: 10px;
-  box-shadow: 10px 10px 20px #bebebe, -10px -10px 20px #ffffff;
+  box-shadow: 10px 10px 20px #bebebe, -10px -10px 20px #fff;
   -webkit-backdrop-filter: blur(5px);
           backdrop-filter: blur(5px);
 }
 main .custom-input-inset .MuiInputBase-root {
-  background-color: #e0e0e0;
-  box-shadow: inset 3px 3px 10px #bebebe, inset -5px -5px 10px #ffffff;
+  box-shadow: inset 3px 3px 10px #bebebe, inset -5px -5px 10px #fff;
 }
 main .MuiFormHelperText-root {
   position: absolute;
@@ -157,10 +92,10 @@ main .device-list .input-group {
   margin: 0.5rem 0;
 }
 main .device-list .devices-input-group span:first-child {
-  background-color: #e0e0e0;
+  background-color: initial;
 }
 main .device-list .devices-input-group .device {
-  background-color: #e0e0e0;
+  background-color: initial;
 }
 main .device-list .devices-input-group .device label {
   color: rgba(0, 0, 0, 0.6);
